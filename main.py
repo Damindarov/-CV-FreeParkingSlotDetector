@@ -9,14 +9,25 @@ cap = cv2.VideoCapture('carPark.mp4')
 width, height = 107, 48 #size of one parking slot
 
 def checkParkingSlot(imgProc):
+    freeSlots = 0
     for slot in slotList:
         x, y = slot
 
         imgCrop = imgProc[y:y+height, x:x+width]
         # cv2.imshow(str(x*y),imgCrop)
-        coun = cv2.countNonZero(imgCrop)
-        cvzone.putTextRect(img, str(coun), (x,y+height-50), scale=1.5, thickness=2, offset=0)
-
+        count = cv2.countNonZero(imgCrop)
+        cvzone.putTextRect(img, str(count), (x,y+height-3), scale=1, thickness=2, offset=0)
+        color = (0,255,0)
+        tickness = 5
+        if count < 900:
+            color = (0,255,0)
+            tickness = 5
+            freeSlots+=1
+        else:
+            color = (0,0,255)
+            tickness = 3
+        cv2.rectangle(img, slot, (slot[0] + width, slot[1] + height), color, tickness)
+    cvzone.putTextRect(img, str(freeSlots),(50,50),3,5,10,(0,200,0))
 try:
     with open("CarParkingSlots", "rb") as f:
         slotList = pickle.load(f)
@@ -37,12 +48,12 @@ while True:
     imgDilate = cv2.dilate(imgMedian, kernel, iterations=1)
 
     checkParkingSlot(imgDilate)
-    for slot in slotList:
-        cv2.rectangle(img, slot, (slot[0] + width, slot[1] + height), (255, 0, 255), 2)
+    # for slot in slotList:
+    #     cv2.rectangle(img, slot, (slot[0] + width, slot[1] + height), (255, 0, 255), 2)
 
     cv2.imshow("Image", img)
-    cv2.imshow("ImageGray", imgGray)
-    cv2.imshow("ImageBlur", imgBlur)
-    cv2.imshow("ImageThresh", imgThreshold)
-    cv2.imshow("ImageMedian", imgMedian)
+    # cv2.imshow("ImageGray", imgGray)
+    # cv2.imshow("ImageBlur", imgBlur)
+    # cv2.imshow("ImageThresh", imgThreshold)
+    # cv2.imshow("ImageMedian", imgMedian)
     cv2.waitKey(1)
